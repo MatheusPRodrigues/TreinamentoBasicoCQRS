@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddSingleton<WriteContext>();
 builder.Services.AddSingleton<CreateProductHandler>();
 builder.Services.AddSingleton<GetProductByIdHandler>();
 builder.Services.AddSingleton<GetAllProductsHandler>();

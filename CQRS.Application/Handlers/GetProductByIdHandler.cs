@@ -9,9 +9,9 @@ namespace CQRS.Application.Handlers
 {
     public class GetProductByIdHandler
     {
-        private readonly DapperContext _context;
+        private readonly WriteContext _context;
 
-        public GetProductByIdHandler(DapperContext context)
+        public GetProductByIdHandler(WriteContext context)
         {
             _context = context;
         }
