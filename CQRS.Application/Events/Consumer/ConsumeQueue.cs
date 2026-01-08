@@ -25,6 +25,7 @@ namespace CQRS.Application.Events.Consumer
                 queue: "ProductQueue",
                 durable: false,
                 exclusive: false,
+                autoDelete: false,
                 arguments: null
             );
 
@@ -36,7 +37,9 @@ namespace CQRS.Application.Events.Consumer
                 
                 var objectConsumed = JsonSerializer.Deserialize<ProductSendDTO>(message);
                 if (objectConsumed is not null)
+                {
                     messages.Add(objectConsumed);
+                }
             };
 
             await channel.BasicConsumeAsync("ProductQueue", autoAck: true, consumer: consumer);

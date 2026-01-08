@@ -60,6 +60,7 @@ namespace CQRS.Application.Handlers
                 );
                 await _collection.InsertOneAsync(insertItem);
             }
+            persistedItens.Clear();
 
             return id; 
         }
