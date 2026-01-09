@@ -1,6 +1,8 @@
 ﻿using CQRS.Domain.DTOs;
+using CQRS.Domain.Entities;
 using CQRS.Infraestructure.Context;
 using Dapper;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,23 +11,24 @@ namespace CQRS.Application.Handlers
 {
     public class GetProductByIdHandler
     {
-        private readonly WriteContext _context;
+        private readonly IMongoCollection<Product> _collection;
 
-        public GetProductByIdHandler(WriteContext context)
+        public GetProductByIdHandler(ReadContext context)
         {
-            _context = context;
+            _collection = context.GetDatabase().GetCollection<Product>("Products");
         }
 
         public async Task<ProductDTO?> HandleAsync(int id)
         {
-            var query = "SELECT Name, Price FROM Products WHERE Id = @Id";
+            var product = await _collection.FindAsync<Product>(p => p.Id == id).Result.FirstOrDefaultAsync();
+            if (product is null)
+                return null;
 
-            using (var connection = _context.CreateConnection())
+            return new ProductDTO
             {
-                var product = await connection.QuerySingleOrDefaultAsync<ProductDTO>(query, new { Id = id });
-
-                return product;
-            }
+                Name = product.Name,
+                Price = product.Price,
+            };
         }
     }
 }

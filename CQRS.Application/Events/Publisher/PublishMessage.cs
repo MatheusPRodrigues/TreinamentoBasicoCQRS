@@ -15,15 +15,21 @@ namespace CQRS.Application.Events.Publisher
 
         public async Task PublishAsync(object message)
         {
-            using var connection = await _connectionFactory.CreateConnectionAsync();
-            using var channel = await connection.CreateChannelAsync();
+            var connection = await _connectionFactory.CreateConnectionAsync();
+            var channel = await connection.CreateChannelAsync();
 
             await channel.QueueDeclareAsync(
                 queue: "ProductQueue",
-                durable: false,
+                durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null
+            );
+
+            await channel.BasicQosAsync(
+                prefetchSize: 0,
+                prefetchCount: 1,
+                global: false
             );
 
             var json = JsonSerializer.Serialize(message);

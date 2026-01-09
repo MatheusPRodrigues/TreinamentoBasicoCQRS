@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CQRS.Domain.DTOs
+﻿namespace CQRS.Domain.DTOs
 {
     public class ProductDTO
     {

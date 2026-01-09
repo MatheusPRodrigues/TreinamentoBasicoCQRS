@@ -47,20 +47,7 @@ namespace CQRS.Application.Handlers
             };
 
             await _publishMessage.PublishAsync(product);
-            await _consumeQueue.ConsumeAsync();
-
-            var persistedItens = _consumeQueue.GetMessages();
-
-            foreach (var itens in persistedItens)
-            {
-                var insertItem = new Product(
-                    itens.Id,
-                    itens.Name,
-                    itens.Price
-                );
-                await _collection.InsertOneAsync(insertItem);
-            }
-            persistedItens.Clear();
+            await _consumeQueue.ConsumeAsync(_collection);
 
             return id; 
         }
