@@ -4,11 +4,11 @@ using System.Data;
 
 namespace CQRS.Infraestructure.Context
 {
-    public class DapperContext
+    public class WriteContext
     {
         private readonly string _connectionString;
 
-        public DapperContext(IConfiguration configuration)
+        public WriteContext(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
