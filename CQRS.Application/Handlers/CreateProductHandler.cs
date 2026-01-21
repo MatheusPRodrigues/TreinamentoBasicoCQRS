@@ -13,19 +13,16 @@ namespace CQRS.Application.Handlers
     {
         private readonly WriteContext _writeContext;
         private readonly PublishMessage _publishMessage;
-        private readonly ConsumeQueue _consumeQueue;
         private readonly IMongoCollection<Product> _collection;
 
         public CreateProductHandler(
             WriteContext writeContext,
             PublishMessage publishMessage,
-            ConsumeQueue consumeQueue,
             ReadContext readContext
             )
         {
             _writeContext = writeContext;
             _publishMessage = publishMessage;
-            _consumeQueue = consumeQueue;
             _collection = readContext.GetDatabase()
                 .GetCollection<Product>("Products");
         }
@@ -47,7 +44,6 @@ namespace CQRS.Application.Handlers
             };
 
             await _publishMessage.PublishAsync(product);
-            await _consumeQueue.ConsumeAsync(_collection);
 
             return id; 
         }
