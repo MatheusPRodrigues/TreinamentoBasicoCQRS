@@ -7,29 +7,25 @@ namespace CQRS.Application.Events.Publisher
     public class PublishMessage
     {
         private readonly IConnectionFactory _connectionFactory;
+        private readonly string _queue;
 
         public PublishMessage(IConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
+            _queue = "product_queue";
         }
 
         public async Task PublishAsync(object message)
         {
-            var connection = await _connectionFactory.CreateConnectionAsync();
-            var channel = await connection.CreateChannelAsync();
+            using var connection = await _connectionFactory.CreateConnectionAsync();
+            using var channel = await connection.CreateChannelAsync();
 
             await channel.QueueDeclareAsync(
-                queue: "ProductQueue",
-                durable: true,
+                queue: _queue,
+                durable: false,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null
-            );
-
-            await channel.BasicQosAsync(
-                prefetchSize: 0,
-                prefetchCount: 1,
-                global: false
             );
 
             var json = JsonSerializer.Serialize(message);
@@ -37,7 +33,7 @@ namespace CQRS.Application.Events.Publisher
 
             await channel.BasicPublishAsync(
                 exchange: "",
-                routingKey: "ProductQueue",
+                routingKey: _queue,
                 body: body
             );
         }
