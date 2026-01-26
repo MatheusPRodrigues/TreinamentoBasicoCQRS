@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using CQRS.Infraestructure.Context;
+using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
@@ -9,9 +10,9 @@ namespace CQRS.Application.Events.Publisher
         private readonly IConnectionFactory _connectionFactory;
         private readonly string _queue;
 
-        public PublishMessage(IConnectionFactory connectionFactory)
+        public PublishMessage(IAbstractFactory<ConnectionFactory> connectionFactory)
         {
-            _connectionFactory = connectionFactory;
+            _connectionFactory = connectionFactory.CreateConnection();
             _queue = "product_queue";
         }
 

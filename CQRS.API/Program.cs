@@ -3,6 +3,8 @@ using CQRS.Application.Events.Publisher;
 using CQRS.Application.Handlers;
 using CQRS.Infraestructure.Context;
 using CQRS.Infraestructure.Context.MongoConfig;
+using Microsoft.Data.SqlClient;
+using MongoDB.Driver;
 using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,10 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<WriteContext>();
+// Configuração tipada para objetos do appsettings.json
 builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
-builder.Services.AddSingleton<ReadContext>();
-builder.Services.AddSingleton<IConnectionFactory>(builder => new ConnectionFactory { HostName = "localhost"});
+builder.Services.Configure<RabbitConfig>(builder.Configuration.GetSection("RabbitMQ"));
+
+// Instância dos factory
+builder.Services.AddSingleton<IAbstractFactory<SqlConnection>, SqlContext>();
+builder.Services.AddSingleton<IAbstractFactory<IMongoDatabase>, MongoContext>();
+builder.Services.AddSingleton<IAbstractFactory<ConnectionFactory>, RabbitContext>();
+
 builder.Services.AddHostedService<ConsumeQueue>();
 builder.Services.AddSingleton<PublishMessage>();
 builder.Services.AddSingleton<CreateProductHandler>();
