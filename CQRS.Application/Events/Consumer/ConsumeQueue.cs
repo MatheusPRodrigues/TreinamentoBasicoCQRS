@@ -5,8 +5,6 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System;
-using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
 
@@ -19,12 +17,12 @@ namespace CQRS.Application.Events.Consumer
         private readonly string _queue;
 
         public ConsumeQueue(
-            IConnectionFactory connectionFactory,
-            ReadContext context
+            IAbstractFactory<ConnectionFactory> connectionFactory,
+            IAbstractFactory<IMongoDatabase> context
         )
         {
-            _connectionFactory = connectionFactory;
-            _collection = context.GetDatabase().GetCollection<Product>("Products");
+            _connectionFactory = connectionFactory.CreateConnection();
+            _collection = context.CreateConnection().GetCollection<Product>("Products");
             _queue = "product_queue";
         }
 

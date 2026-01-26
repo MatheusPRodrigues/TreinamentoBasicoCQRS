@@ -4,15 +4,18 @@ using System.Data;
 
 namespace CQRS.Infraestructure.Context
 {
-    public class WriteContext
+    public class SqlContext : IAbstractFactory<SqlConnection>
     {
         private readonly string _connectionString;
 
-        public WriteContext(IConfiguration configuration)
+        public SqlContext(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public IDbConnection CreateConnection() => new SqlConnection(_connectionString);
+        SqlConnection IAbstractFactory<SqlConnection>.CreateConnection()
+        {
+            return new SqlConnection(_connectionString);
+        }
     }
 }

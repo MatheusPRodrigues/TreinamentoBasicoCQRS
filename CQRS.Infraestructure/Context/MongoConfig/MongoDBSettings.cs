@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CQRS.Infraestructure.Context.MongoConfig
+﻿namespace CQRS.Infraestructure.Context.MongoConfig
 {
     public class MongoDBSettings
     {

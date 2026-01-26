@@ -1,30 +1,24 @@
 ﻿using CQRS.Application.Commands;
-using CQRS.Application.Events.Consumer;
 using CQRS.Application.Events.Publisher;
 using CQRS.Domain.DTOs;
-using CQRS.Domain.Entities;
 using CQRS.Infraestructure.Context;
 using Dapper;
-using MongoDB.Driver;
+using Microsoft.Data.SqlClient;
 
 namespace CQRS.Application.Handlers
 {
     public class CreateProductHandler
     {
-        private readonly WriteContext _writeContext;
+        private readonly SqlConnection _writeContext;
         private readonly PublishMessage _publishMessage;
-        private readonly IMongoCollection<Product> _collection;
 
         public CreateProductHandler(
-            WriteContext writeContext,
-            PublishMessage publishMessage,
-            ReadContext readContext
-            )
+            IAbstractFactory<SqlConnection> writeContext,
+            PublishMessage publishMessage
+        )
         {
-            _writeContext = writeContext;
+            _writeContext = writeContext.CreateConnection();
             _publishMessage = publishMessage;
-            _collection = readContext.GetDatabase()
-                .GetCollection<Product>("Products");
         }
 
         public async Task<int> HandleAsync(CreateProductCommand command)
@@ -32,9 +26,9 @@ namespace CQRS.Application.Handlers
             var sql = @"INSERT INTO Products (Name, Price) VALUES (@Name, @Price);
                         SELECT CAST(SCOPE_IDENTITY() as int)";
 
-            using var connection = _writeContext.CreateConnection();
-
-            var id = await connection.QuerySingleAsync<int>(sql, new {command.Name, command.Price});
+            await _writeContext.OpenAsync();
+            var id = await _writeContext.QuerySingleAsync<int>(sql, new { command.Name, command.Price });
+            await _writeContext.CloseAsync();
 
             var product = new ProductSendDTO
             {
@@ -45,7 +39,8 @@ namespace CQRS.Application.Handlers
 
             await _publishMessage.PublishAsync(product);
 
-            return id; 
+            return id;
+
         }
     }
 }

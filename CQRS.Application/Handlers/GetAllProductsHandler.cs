@@ -1,11 +1,7 @@
 ﻿using CQRS.Domain.DTOs;
 using CQRS.Domain.Entities;
 using CQRS.Infraestructure.Context;
-using Dapper;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CQRS.Application.Handlers
 {
@@ -13,9 +9,9 @@ namespace CQRS.Application.Handlers
     {
         private readonly IMongoCollection<Product> _collection;
 
-        public GetAllProductsHandler(ReadContext context)
+        public GetAllProductsHandler(IAbstractFactory<IMongoDatabase> context)
         {
-            _collection = context.GetDatabase().GetCollection<Product>("Products");
+            _collection = context.CreateConnection().GetCollection<Product>("Products");
         }
 
         public async Task<IEnumerable<ProductDTO?>> HandleAsync()
