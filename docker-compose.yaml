@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+  app:
+    image: matheusprodrigues/cqrsapp:v1
+    container_name: cqrs_app
+    ports:
+      - 8001:80
+    environment:
+      - ConnectionStrings="Server=sqlDb;Database=CQRSDbWrite;User Id=sa;Password=SqlServer@2022;TrustServerCertificate=True;"
+      - MongoDB__ConnectionURI=mongodb://mongoDb"
+      - RabbitMQ__Conection=rabbitMQ
+    links:
+      - sqlDb
+      - mongoDb
+      - rabbitMQ
+    depends_on:
+      - sqlDb
+      - mongoDb
+      - rabbitMQ
+    networks:
+      - cqrs_network
+
+  sqlDb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: cqrs_sql
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SqlServer@2022
+    networks:
+      - cqrs_network
+
+  mongoDb:
+    image: mongo
+    container_name: cqrs_mongo
+    ports:
+      - 27017:27017
+    networks:
+      - cqrs_network
+  
+  rabbitMQ:
+    image: rabbitmq:4-management
+    container_name: cqrs_rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - cqrs_network
+
+networks:
+  cqrs_network:
+    driver: bridge
